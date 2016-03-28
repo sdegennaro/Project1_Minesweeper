@@ -117,7 +117,8 @@ minesweeper.setClickHandler = function(){
           (scope.checkBombCount(e.target)!=true);
         };
         if(checkedTiles.length>= (100-scope.mineCount)){
-          console.log("You Win!");
+          alert("You Win!");
+          scope.restart();
         };
       }
     }
@@ -133,6 +134,7 @@ minesweeper.setButtonHandler = function(){
 }
 minesweeper.restart = function(){
   $("#boardContainer").empty();
+  checkedTiles = [];
   this.makeBoard();
 }
 
