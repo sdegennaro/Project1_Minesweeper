@@ -16,7 +16,7 @@ var makeRow = function(){
 
 var checkedTiles = [];
 // minesweeper.tile.bomb = false; //sets all tiles to no bomb
-minesweeper.mineCount = 20;
+minesweeper.mineCount = 10;
 minesweeper.boardSize = 10;
 
 
@@ -50,8 +50,8 @@ minesweeper.makeBoard = function(){
 minesweeper.makeBombs = function(){
    var i = 0;
    while(i < this.mineCount) {
-     var rowIndex = Math.floor(Math.random() * 10);
-     var columnIndex = Math.floor(Math.random() * 10);
+     var rowIndex = Math.floor(Math.random() * this.boardSize);
+     var columnIndex = Math.floor(Math.random() * this.boardSize);
    //if it's true, that square already has a bomb and you should loop again
      if ($("#row"+rowIndex+"tile"+columnIndex).hasClass("bomb") === true){
        console.log("already a bomb!");
@@ -64,8 +64,8 @@ minesweeper.makeBombs = function(){
 };
 
 minesweeper.setBombCount = function(){
-  for (var i = 0; i < 10; i++) {
-    for (var j = 0; j < 10; j++) {
+  for (var i = 0; i < this.boardSize; i++) {
+    for (var j = 0; j < this.boardSize; j++) {
       var bombCount = 0;
       var topLeftNeighbor = $("#row" + (i-1) + "tile"+ (j-1));
       var topNeighbor = $("#row" + (i-1) + "tile"+ j);
@@ -117,7 +117,7 @@ minesweeper.setClickHandler = function(){
           checkedTiles.push(e.target);
           (scope.checkBombCount(e.target)!=true);
         };
-        if(checkedTiles.length>= (100-scope.mineCount)){
+        if(checkedTiles.length>= ((scope.boardSize*scope.boardSize)-scope.mineCount)){
           scope.winGraphic();
           setTimeout(scope.restart,3000);
         };
@@ -185,6 +185,7 @@ minesweeper.checkBombCount = function(tile){
      tile.classList.add("num");
      tile.innerText = "";
      var row =tile.getAttribute("id")[3]
+    //  console.log(tile.getAttribute("id").match(/\d/));
      var column = tile.getAttribute("id")[8]
      this.topNeighbors(row, column);
      this.leftNeighbors(row, column);
