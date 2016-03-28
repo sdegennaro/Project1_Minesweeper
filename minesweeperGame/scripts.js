@@ -117,8 +117,8 @@ minesweeper.setClickHandler = function(){
           (scope.checkBombCount(e.target)!=true);
         };
         if(checkedTiles.length>= (100-scope.mineCount)){
-          alert("You Win!");
-          scope.restart();
+          scope.winGraphic();
+          setTimeout(scope.restart,3000);
         };
       }
     }
@@ -127,15 +127,23 @@ minesweeper.setClickHandler = function(){
 
 
 minesweeper.setButtonHandler = function(){
-  scope=this;
+  var scope=this;
   $("#newGameButton").click(function(e){
     scope.restart();
   })
 }
+minesweeper.winGraphic =function(){
+  $("#boardContainer").empty();
+  var winText = $("<h1>")
+  winText.text("YOU WIN!")
+  $("#boardContainer").append(winText)
+}
+
 minesweeper.restart = function(){
+  var scope = this;
   $("#boardContainer").empty();
   checkedTiles = [];
-  this.makeBoard();
+  minesweeper.makeBoard();
 }
 
 minesweeper.setRightClickHandler = function(){
