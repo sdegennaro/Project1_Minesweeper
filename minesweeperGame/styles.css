@@ -1,0 +1,36 @@
+body{
+  background-color: lightgreen;
+}
+
+#boardContainer{
+  width: 80%;
+  display:table;
+}
+
+.row{
+  display:flex;
+  flex-direction: row;
+
+}
+
+.tile{
+  width: 30px;
+  border: 1px solid white;
+  height: 30px;
+  text-align: center;
+  background-color: darkgrey;
+  color: darkgrey;
+
+}
+
+.flag{
+  background-color: yellow;
+  color: yellow;
+}
+
+.num{
+  background-color: lightblue;
+}
+/*.bomb{
+  background-color: red;
+}*/
