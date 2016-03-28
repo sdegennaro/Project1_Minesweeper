@@ -16,14 +16,15 @@ var makeRow = function(){
 
 var checkedTiles = [];
 // minesweeper.tile.bomb = false; //sets all tiles to no bomb
-minesweeper.mineCount = 10
+minesweeper.mineCount = 20;
+minesweeper.boardSize = 10;
 
 
 
 minesweeper.makeBoard = function(){
   minesweeper.board = {}
-  var size = 10;
-  for (var i = 0; i < size; i++) {
+  // var size = 10;
+  for (var i = 0; i < this.boardSize; i++) {
     minesweeper.board[i] = makeRow();
     minesweeper.board[i]=$("<div>", {
       class: "row",
@@ -31,7 +32,7 @@ minesweeper.makeBoard = function(){
     });
     $("#boardContainer").append(minesweeper.board[i]);
 
-    for (var j = 0; j < size; j++) {
+    for (var j = 0; j < this.boardSize; j++) {
       minesweeper.board[i][j] = makeTile();
       minesweeper.board[i][j] = $("<div>",{
         class: "tile",
