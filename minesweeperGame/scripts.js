@@ -1,27 +1,32 @@
 console.log("...loaded");
 //wireframes, user stories, pseudo coding;
 //Minesweeper:
-//Make the game an object
 
+//Make the game an object
 var minesweeper = {};
+//function to create new tile objects
 var makeTile = function(){
   var tile ={};
   // tile.bomb = false;
   return tile;
 };
+//function to create new row objects
 var makeRow = function(){
   var row = {}
   return row;
 };
-
+//set up array to hold the id of tiles that have already been checked for bombs
 var checkedTiles = [];
-// minesweeper.tile.bomb = false; //sets all tiles to no bomb
+//set how many mines
 minesweeper.mineCount = 10;
+//set the size of the board, num tiles x num tiles
 minesweeper.boardSize = 10;
-minesweeper.tileSize = 3;
+
+//set the size of the tiles DELEEEETE*********
+// minesweeper.tileSize = 2;
 
 
-
+//function to create the elements of the board
 minesweeper.makeBoard = function(){
   minesweeper.board = {}
   // var size = 10;
@@ -149,6 +154,12 @@ minesweeper.restart = function(){
   "display":"table",
   "visibility":"visible"
   });
+
+  $("#gameContainer").css({
+
+  "display":"table",
+  "visibility":"visible"
+  });
   // $("#boardContainer").show();
   checkedTiles = [];
   minesweeper.makeBoard();
@@ -181,16 +192,21 @@ minesweeper.checkBomb = function(tileClicked){
       "background-color":"red",
       "color":"red"
       });
-
+     $(".bomb").css({
+       "content": "url(http://simpleicon.com/wp-content/uploads/bomb.png)"
+     })
      return true;
   }
 }
 
 minesweeper.explodeHandler = function(){
   var board = $("#boardContainer")
+  var container =$("#gameContainer")
   scope=this;
   $(".bomb").click(function(e){
+    board.css("border", "none");
     board.hide("explode", {pieces:100}, 2000)
+    container.hide("fade",1000)
     setTimeout(scope.restart,2000);
   })
 }
@@ -295,6 +311,10 @@ if it's not a bomb, check
 minesweeper.init = function(){
   this.makeBoard();
   // this.makeGameDesign();
+  this.makeBombs();
+  this.setBombCount();
+  this.setClickHandler();
+  this.setRightClickHandler();
   this.setButtonHandler();
   // minesweeper.makeBombs();
 

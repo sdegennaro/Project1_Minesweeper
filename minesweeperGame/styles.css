@@ -7,10 +7,12 @@ body{
   border: 2px solid black;
   width: 32em;
   height:32em;
+  background-color: snow;
 }
 #boardContainer{
   width: 80%;
   display:table;
+  border: 1px solid darkgrey;
 }
 
 .row{
