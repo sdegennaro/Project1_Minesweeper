@@ -21,6 +21,7 @@ var checkedTiles = [];
 minesweeper.mineCount = 10;
 //set the size of the board, num tiles x num tiles
 minesweeper.boardSize = 10;
+minesweeper.time = 0;
 
 //set the size of the tiles DELEEEETE*********
 // minesweeper.tileSize = 2;
@@ -37,6 +38,8 @@ minesweeper.makeBoard = function(){
       class: "row",
       id: "row"+i
     });
+    $("#bombCounter").text("Bombs: " +minesweeper.mineCount)
+    $("#timer").text("Time: "+minesweeper.time);
     //append each row to the boardContainer div
     $("#boardContainer").append(minesweeper.board[i]);
     //for each row that's being created, also decided by boardSize, create one tile for each column
@@ -73,6 +76,7 @@ minesweeper.makeBombs = function(){
      };
    };
 };
+
 
 minesweeper.setBombCount = function(){
   for (var i = 0; i < this.boardSize; i++) {
@@ -115,9 +119,16 @@ minesweeper.setBombCount = function(){
   };
 };
 
+minesweeper.startTimer = function(){
+    minesweeper.time ++;
+    $("#timer").text("Time: "+minesweeper.time);
+};
+
 minesweeper.setClickHandler = function(){
   var scope=this;
+  this.explodeHandler();
   $(".tile").click(function(e){
+    setInterval(scope.startTimer,1000)
     // scope.checkBomb(e.target);
     if(e.target.classList.contains("flag") == true){
       return;
@@ -144,6 +155,7 @@ minesweeper.setButtonHandler = function(){
   })
 }
 minesweeper.winGraphic =function(){
+  clearInterval(this.startTimer)
   $("#boardContainer").empty();
   var winText = $("<h1>")
   winText.css({
@@ -188,12 +200,16 @@ minesweeper.setRightClickHandler = function(){
 
    document.oncontextmenu = function(e){
         e.preventDefault();
-        if(e.target.classList.contains("flag")){
-          e.target.classList.remove("flag");
+        if(e.target.classList.contains("num")==true){
+          return
         } else{
-          e.target.classList.add("flag")
-          // e.target.style.content = "url(http://simpleicon.com/wp-content/uploads/flag.png)"
-        };
+          if(e.target.classList.contains("flag")){
+            e.target.classList.remove("flag");
+          } else{
+            e.target.classList.add("flag")
+            // e.target.style.content = "url(http://simpleicon.com/wp-content/uploads/flag.png)"
+          };
+        }
     }
 }
 
@@ -202,7 +218,6 @@ minesweeper.setRightClickHandler = function(){
 
 
 minesweeper.checkBomb = function(tileClicked){
-  this.explodeHandler();
 
   if(tileClicked.classList.contains("bomb")){
      console.log("boom!");
@@ -234,7 +249,7 @@ minesweeper.explodeHandler = function(){
       //removes border so tiles explode evenly
       board.css("border", "none");
       //used jquery plugin, explodes into 100 equal pieces
-      board.hide("explode", {pieces:100}, 1500)
+      board.hide("explode", {pieces:100}, 1800)
       container.css({
         "background-image":"url(http://www.animatedimages.org/data/media/1176/animated-explosion-image-0001.gif)",
         "background-size":"cover",
@@ -242,7 +257,7 @@ minesweeper.explodeHandler = function(){
       })
     }
     // explosion.show("fade",1000)
-    setTimeout(scope.restart,1500);
+    setTimeout(scope.restart,1900);
   })
 }
 
@@ -336,6 +351,7 @@ minesweeper.init = function(){
   this.makeBoard();
   this.setRightClickHandler();
   this.setButtonHandler();
+
 
 }
 
