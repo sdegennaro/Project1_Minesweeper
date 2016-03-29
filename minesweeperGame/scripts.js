@@ -28,29 +28,34 @@ minesweeper.boardSize = 10;
 
 //function to create the elements of the board
 minesweeper.makeBoard = function(){
+  //create board object
   minesweeper.board = {}
-  // var size = 10;
+  //increment up to boardSize to create rows, as divs with class and id
   for (var i = 0; i < this.boardSize; i++) {
     minesweeper.board[i] = makeRow();
     minesweeper.board[i]=$("<div>", {
       class: "row",
       id: "row"+i
     });
+    //append each row to the boardContainer div
     $("#boardContainer").append(minesweeper.board[i]);
-
+    //for each row that's being created, also decided by boardSize, create one tile for each column
     for (var j = 0; j < this.boardSize; j++) {
       minesweeper.board[i][j] = makeTile();
       minesweeper.board[i][j] = $("<div>",{
         class: "tile",
         id: "row"+i+"tile"+j,
       });
+      //add the tiles to the row
       $("#row" + i).append(minesweeper.board[i][j]);
     };
   };
+//call the function to makeBombs
   this.makeBombs();
+  //call to count the bombs for each tile
   this.setBombCount();
+  //call function to set up the click event on the tiles
   this.setClickHandler();
-  this.setRightClickHandler();
 };
 
 minesweeper.makeBombs = function(){
@@ -158,7 +163,8 @@ minesweeper.restart = function(){
   $("#gameContainer").css({
 
   "display":"table",
-  "visibility":"visible"
+  "visibility":"visible",
+  "background-image":"none"
   });
   // $("#boardContainer").show();
   checkedTiles = [];
@@ -202,12 +208,23 @@ minesweeper.checkBomb = function(tileClicked){
 minesweeper.explodeHandler = function(){
   var board = $("#boardContainer")
   var container =$("#gameContainer")
+  var explosion=$("<img src=http://www.animatedimages.org/data/media/1176/animated-explosion-image-0001.gif>").css({
+    "display":"none"
+
+  })
+  $("body").append(explosion)
+
   scope=this;
   $(".bomb").click(function(e){
-    board.css("border", "none");
-    board.hide("explode", {pieces:100}, 2000)
-    container.hide("fade",1000)
-    setTimeout(scope.restart,2000);
+    // board.css("border", "none");
+    board.hide("explode", {pieces:100}, 1500)
+    container.css({
+      "background-image":"url(http://www.animatedimages.org/data/media/1176/animated-explosion-image-0001.gif)",
+      "background-size":"cover",
+      "background-position": "center"
+    })
+    // explosion.show("fade",1000)
+    setTimeout(scope.restart,1500);
   })
 }
 
@@ -310,13 +327,8 @@ if it's not a bomb, check
 
 minesweeper.init = function(){
   this.makeBoard();
-  // this.makeGameDesign();
-  this.makeBombs();
-  this.setBombCount();
-  this.setClickHandler();
   this.setRightClickHandler();
   this.setButtonHandler();
-  // minesweeper.makeBombs();
 
 }
 
