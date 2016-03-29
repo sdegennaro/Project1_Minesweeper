@@ -118,9 +118,8 @@ minesweeper.setBombCount = function(){
 minesweeper.setClickHandler = function(){
   var scope=this;
   $(".tile").click(function(e){
-    // console.log(e.target);
     // scope.checkBomb(e.target);
-    if(e.target.classList.contains("flag")){
+    if(e.target.classList.contains("flag") == true){
       return;
     } else{
       if(checkedTiles.indexOf(e.target) == -1){
@@ -157,7 +156,8 @@ minesweeper.restart = function(){
   $("#boardContainer").css({
 
   "display":"table",
-  "visibility":"visible"
+  "visibility":"visible",
+  "border": "1px solid darkgrey"
   });
 
   $("#gameContainer").css({
@@ -174,16 +174,17 @@ minesweeper.restart = function(){
 
 minesweeper.setRightClickHandler = function(){
 
+
    document.oncontextmenu = function(e){
         e.preventDefault();
-        e.target.classList.add("flag")
-    };
+        if(e.target.classList.contains("flag")){
+          e.target.classList.remove("flag");
+        } else{
+          e.target.classList.add("flag")
+          // e.target.style.content = "url(http://simpleicon.com/wp-content/uploads/flag.png)"
+        };
+    }
 }
-  // $(".tile").click(function(e){
-  //   e.preventDefault;
-  //   if(window.event.ctrlKey){
-  //     e.target.css("background-color","orange");
-  //   }
 
 
 
@@ -215,14 +216,20 @@ minesweeper.explodeHandler = function(){
   $("body").append(explosion)
 
   scope=this;
-  $(".bomb").click(function(e){
-    // board.css("border", "none");
-    board.hide("explode", {pieces:100}, 1500)
-    container.css({
-      "background-image":"url(http://www.animatedimages.org/data/media/1176/animated-explosion-image-0001.gif)",
-      "background-size":"cover",
-      "background-position": "center"
-    })
+  $(".bomb").click(function(){
+    if($(this).hasClass("flag") == true){
+      return;
+    } else{
+      //removes border so tiles explode evenly
+      board.css("border", "none");
+      //used jquery plugin, explodes into 100 equal pieces
+      board.hide("explode", {pieces:100}, 1500)
+      container.css({
+        "background-image":"url(http://www.animatedimages.org/data/media/1176/animated-explosion-image-0001.gif)",
+        "background-size":"cover",
+        "background-position": "center"
+      })
+    }
     // explosion.show("fade",1000)
     setTimeout(scope.restart,1500);
   })
@@ -236,20 +243,24 @@ minesweeper.explodeHandler = function(){
 
 minesweeper.checkBombCount = function(tile){
   var bombCount = parseInt(tile.getAttribute("bombCount"))
-  if(bombCount > 0 ){
-    tile.classList.add("num");
-    tile.innerText = bombCount;
-    return true;
-   } else {
-     tile.classList.add("num");
-     tile.innerText = "";
-     var row =tile.getAttribute("id")[3]
-    //  console.log(tile.getAttribute("id").match(/\d/));
-     var column = tile.getAttribute("id")[8]
-     this.topNeighbors(row, column);
-     this.leftNeighbors(row, column);
-     this.rightNeighbors(row, column);
-     this.bottomNeighbors(row, column);
+  if(tile.classList.contains("flag")){
+    return;
+  } else{
+    if(bombCount > 0 ){
+      tile.classList.add("num");
+      tile.innerText = bombCount;
+      return true;
+     } else {
+       tile.classList.add("num");
+       tile.innerText = "";
+       var row =tile.getAttribute("id")[3]
+      //  console.log(tile.getAttribute("id").match(/\d/));
+       var column = tile.getAttribute("id")[8]
+       this.topNeighbors(row, column);
+       this.leftNeighbors(row, column);
+       this.rightNeighbors(row, column);
+       this.bottomNeighbors(row, column);
+     };
    };
 };
 
@@ -309,21 +320,6 @@ minesweeper.bottomNeighbors = function(i,j){
 // //   var bombCount = 0;
 // //   this.checkBomb($("#row[" + (clickRow-1) + "]tile["+ clickColumn +"]"));
 // };
-
-/* set the bomb count
-row1tile1 row1tile0, row1tile2,row0tile0,row0tile1,
-$("#row[" + clickRow "-1]tile["+ clickColumn +"]")
-row[i-1]tile[j-1]
-row[i-1]tile[j+1]
-row[i]tile[j+1]
-row[i]tile[j-1]
-row[i+1]tile[j]
-row[i+1]tile[j-1]
-row[i+1]tile[j+1]
-
-if the tile clicked is a bomb, boom...game over
-if it's not a bomb, check
-*/
 
 minesweeper.init = function(){
   this.makeBoard();

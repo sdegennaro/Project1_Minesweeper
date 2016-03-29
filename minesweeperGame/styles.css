@@ -29,12 +29,12 @@ body{
   background-color: darkgrey;
   color: darkgrey;
   border-style: outset;
-
-
+  vertical-align: middle;
 }
 
 .flag{
   background-color: yellow;
+  content: url(http://simpleicon.com/wp-content/uploads/flag.png);
   color: yellow;
 }
 
@@ -42,6 +42,8 @@ body{
   background-color: lightblue;
   border-style: inset
 }
+
+
 
 #testBox{
   width: 3em;
