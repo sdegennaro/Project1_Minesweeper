@@ -20,6 +20,8 @@ body{
   text-align: center;
   background-color: darkgrey;
   color: darkgrey;
+  border-style: outset;
+
 
 }
 
@@ -30,6 +32,7 @@ body{
 
 .num{
   background-color: lightblue;
+  border-style: inset
 }
 /*.bomb{
   background-color: red;
