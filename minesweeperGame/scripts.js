@@ -146,7 +146,18 @@ minesweeper.setButtonHandler = function(){
 minesweeper.winGraphic =function(){
   $("#boardContainer").empty();
   var winText = $("<h1>")
+  winText.css({
+    "text-align":"center",
+  })
+  var winImage = $("<img src=http://www.sherv.net/cm/emoticons/war/smiley-face-soldier.gif>")
+  winImage.css({
+    "display":"block",
+    "width":"50%",
+    "padding": "0em 2.5em"
+  })
   winText.text("YOU WIN!")
+  winText.append(winImage)
+
   $("#boardContainer").append(winText)
 }
 
