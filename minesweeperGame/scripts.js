@@ -120,20 +120,20 @@ minesweeper.makeNeighborsArray = function(i,j){
 };
 
 //increments the time value and placesg it in the timer div
-minesweeper.interval = null
-
 minesweeper.incrementTimer = function(){
     minesweeper.time ++;
     $("#timer").text("Time: "+minesweeper.time);
 };
 
+//create a variable for the interval so it can be cleared later
 minesweeper.startTimer = function(){
   minesweeper.interval = setInterval(scope.incrementTimer,1000);
 }
+
 //attaches the increment function to the first clickon the game container and performs the function on a 1 sec interval
 minesweeper.TimerHandler = function(){
     $("#gameContainer").one("click", function(e){
-      this.startTimer();
+      minesweeper.startTimer();
     });
 };
 minesweeper.stopTimer = function(){
@@ -146,7 +146,7 @@ minesweeper.setClickHandler = function(){
   scope.explodeHandler();
   //if it doesn't explode:
   //start the time, game begins;
-  scope.startTimer()
+  scope.TimerHandler()
   //on click of any element with tile class
   $(".tile").click(function(e){
       // if the clicked tile has a flag on it, do nothing
