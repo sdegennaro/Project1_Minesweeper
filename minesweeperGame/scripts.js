@@ -136,10 +136,12 @@ minesweeper.TimerHandler = function(){
       minesweeper.startTimer();
     });
 };
+//clears the interval
 minesweeper.stopTimer = function(){
   clearInterval(minesweeper.interval);
 };
 
+//create a click handler that will be attached to all of the tiles
 minesweeper.setClickHandler = function(){
   var scope=this;
   //before any other click event options, set up the explosion on click
@@ -252,7 +254,7 @@ minesweeper.winGraphic =function(){
   //http://images.zaazu.com/img/Desert-Storm-desert-storm-soldier-war-smiley-emoticon-000131-medium.gif>")
   //    http://www.sherv.net/cm/emoticons/war/smiley-face-soldier.gif>")
 
-  //add you text to heading and append the text and first image to the container
+  //add you win text to heading and append the text and first image to the container
   winText.text("YOU WIN!");
   $("#boardContainer").append(winText);
   $("#boardContainer").append(winImage1);
@@ -300,44 +302,48 @@ minesweeper.walkingSoldier = function(image){
   }, 60);
 };
 
-//resets the container CSS
+//resets the container CSS, checkedTiles array, clears and stops the timer, and makes the board
 minesweeper.restart = function(){
 
-  $("#boardContainer").empty();
-  $("#boardContainer").css({
+    $("#boardContainer").empty();
+    $("#boardContainer").css({
 
-  "display":"table",
-  "visibility":"visible",
-  "border": "1px solid darkgrey"
-  });
+    "display":"table",
+    "visibility":"visible",
+    "border": "1px solid darkgrey"
+    });
 
-  $("#gameContainer").css({
+    $("#gameContainer").css({
 
-  "display":"table",
-  "visibility":"visible",
-  "background-image":"none"
-  });
-  // $("#boardContainer").show();
-  checkedTiles = [];
-  minesweeper.time = 0;
-  minesweeper.makeBoard();
-  minesweeper.stopTimer();
+    "display":"table",
+    "visibility":"visible",
+    "background-image":"none"
+    });
+    checkedTiles = [];
+    minesweeper.time = 0;
+    minesweeper.stopTimer();
+    minesweeper.makeBoard();
+};
 
-}
-
+//right click handler for flags
 minesweeper.setRightClickHandler = function(){
   var scope =this;
-
    document.oncontextmenu = function(e){
+     //prevent default context menu to appear
         e.preventDefault();
+        //if the tile has already been clicked, do nothing
         if(e.target.classList.contains("num")==true){
           return
         } else{
+          //if it has a flat, remove it
           if(e.target.classList.contains("flag")){
             e.target.classList.remove("flag");
-            scope.bombCount
+            minesweeper.bombsLeft ++;
+            $("#bombCounter").text("Bombs: " +minesweeper.bombsLeft)
           } else{
-            e.target.classList.add("flag")
+            e.target.classList.add("flag");
+            minesweeper.bombsLeft = minesweeper.bombsLeft-1;
+            $("#bombCounter").text("Bombs: " +minesweeper.bombsLeft)
 
             // e.target.style.content = "url(http://simpleicon.com/wp-content/uploads/flag.png)"
           };
