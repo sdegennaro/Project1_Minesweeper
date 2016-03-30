@@ -379,43 +379,14 @@ minesweeper.explodeHandler = function(){
   });
 };
 
-
+//sets up the board and some handlers
 minesweeper.init = function(){
   this.makeBoard();
   this.setRightClickHandler();
   this.setButtonHandler();
 };
 
-/*
-make the board an array of arrays of rows or arrays of tiles which are objects
-
-Make a 10 x 10 grid
-
-Randomly place 10 bombs in 10 tile objects
-
-if the tile object is not a bomb, count the number of bombs surrounding it
-  place that count as the value of the tile object
-if no bombs around it, the value of the tile object should be null
-
-
-show neighbors function
-  if value is null and it's being displayed, show the eight tiles around it
-
-
-when the user clicks a square:
-  change display value to show the tile value (maybe use a class?)
-  check if there's a bomb in the square
-  if there is, game over BOOM
-  tell the user they lose
-  if there isn't, count the number of bombs in the surrounding eight squares
-  if the count is  zero,
-
-  if there is, show the square clicked
-  the value of the square clicked should be equal to
-
-  TO RESEARCH .data in jquery
-*/
-
+//starts the game on load
 $(function(){
 
   minesweeper.init();
