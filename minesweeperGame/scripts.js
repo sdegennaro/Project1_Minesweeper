@@ -4,54 +4,55 @@ console.log("...loaded");
 
 //Make the game an object
 var minesweeper = {};
-//function to create new tile objects
+
+//functions to create new tile and row objects, avoids scope issues and ensures I'm actually creating a new object each time rather than connecting to exisiting ones
 var makeTile = function(){
   var tile ={};
-  // tile.bomb = false;
   return tile;
 };
-//function to create new row objects
 var makeRow = function(){
   var row = {}
   return row;
 };
+
 //set up array to hold the id of tiles that have already been checked for bombs
 var checkedTiles = [];
-//set how many mines
-minesweeper.mineCount = 10;
+
+//set how many mines to start and begin bomb counter
+minesweeper.startingBombCount = 10
+minesweeper.bombsLeft = minesweeper.startingBombCount;
 //set the size of the board, num tiles x num tiles
 minesweeper.boardSize = 10;
+//set time to 0
 minesweeper.time = 0;
-
-//set the size of the tiles DELEEEETE*********
-// minesweeper.tileSize = 2;
 
 
 //function to create the elements of the board
 minesweeper.makeBoard = function(){
-  //create board object
+  //displays the bomb count and time in the game
+  $("#bombCounter").text("Bombs: " +minesweeper.startingBombCount)
+  $("#timer").text("Time: "+minesweeper.time);
+  // //create board object
   minesweeper.board = {}
   //increment up to boardSize to create rows, as divs with class and id
   for (var i = 0; i < this.boardSize; i++) {
-    minesweeper.board[i] = makeRow();
-    minesweeper.board[i]=$("<div>", {
-      class: "row",
-      id: "row"+i
-    });
-    $("#bombCounter").text("Bombs: " +minesweeper.mineCount)
-    $("#timer").text("Time: "+minesweeper.time);
+      minesweeper.board[i] = makeRow();
+      minesweeper.board[i]=$("<div>", {
+        class: "row",
+        id: "row"+i
+        });
     //append each row to the boardContainer div
-    $("#boardContainer").append(minesweeper.board[i]);
+      $("#boardContainer").append(minesweeper.board[i]);
     //for each row that's being created, also decided by boardSize, create one tile for each column
-    for (var j = 0; j < this.boardSize; j++) {
-      minesweeper.board[i][j] = makeTile();
-      minesweeper.board[i][j] = $("<div>",{
-        class: "tile",
-        id: "row"+i+"tile"+j,
-      });
+      for (var j = 0; j < this.boardSize; j++) {
+          minesweeper.board[i][j] = makeTile();
+          minesweeper.board[i][j] = $("<div>",{
+            class: "tile",
+            id: "row"+i+"tile"+j,
+            });
       //add the tiles to the row
-      $("#row" + i).append(minesweeper.board[i][j]);
-    };
+          $("#row" + i).append(minesweeper.board[i][j]);
+      };
   };
 //call the function to makeBombs
   this.makeBombs();
@@ -59,63 +60,79 @@ minesweeper.makeBoard = function(){
   this.setBombCount();
   //call function to set up the click event on the tiles
   this.setClickHandler();
+  //board should be all set up! ready to play!
 };
 
 minesweeper.makeBombs = function(){
    var i = 0;
-   while(i < this.mineCount) {
-     var rowIndex = Math.floor(Math.random() * this.boardSize);
-     var columnIndex = Math.floor(Math.random() * this.boardSize);
-   //if it's true, that square already has a bomb and you should loop again
-     if ($("#row"+rowIndex+"tile"+columnIndex).hasClass("bomb") === true){
-       console.log("already a bomb!");
-     } else{
-        $("#row"+rowIndex+"tile"+columnIndex).attr("class", "tile bomb");
-        // console.log("made a bomb!");
-        i++;
-     };
+   //while loop since you may hit the same square twice, in which case you'd need to loop again so can't use for loop
+   while(i < this.startingBombCount) {
+     //randomly pick a row and column
+       var rowIndex = Math.floor(Math.random() * this.boardSize);
+       var columnIndex = Math.floor(Math.random() * this.boardSize);
+     //if that tile already has a bomb, you should loop again
+       if ($("#row"+rowIndex+"tile"+columnIndex).hasClass("bomb") === true){
+         console.log("already a bomb!");
+        //if it doesn't, you can add a bomb.
+       } else{
+          $("#row"+rowIndex+"tile"+columnIndex).addClass("bomb");
+          i++;
+       };
    };
 };
 
 
 minesweeper.setBombCount = function(){
+  //going to have to loop through all of the squares. since we know how many there are, can use a for loop
+  //for every row
   for (var i = 0; i < this.boardSize; i++) {
-    for (var j = 0; j < this.boardSize; j++) {
-      var bombCount = 0;
-      var topLeftNeighbor = $("#row" + (i-1) + "tile"+ (j-1));
-      var topNeighbor = $("#row" + (i-1) + "tile"+ j);
-      var topRightNeighbor = $("#row" + (i-1) + "tile"+ (j-(-1)))
-      var leftNeighbor = $("#row" + i + "tile"+ (j-1))
-      var rightNeighbor = $("#row" + i + "tile"+ (j-(-1)))
-      var bottomLeftNeighbor = $("#row" + (i-(-1)) + "tile"+ (j-1))
-      var bottomNeighbor = $("#row" + (i-(-1)) + "tile"+ j)
-      var bottomRightNeighbor = $("#row" + (i-(-1)) + "tile"+ (j-(-1)))
-      if(topNeighbor.hasClass("bomb")){
-            bombCount ++;
-          };
-      if(topLeftNeighbor.hasClass("bomb")){
-            bombCount ++;
-          };
-      if(topRightNeighbor.hasClass("bomb")){
-            bombCount ++;
-          };
-      if(bottomNeighbor.hasClass("bomb")){
-            bombCount ++;
-          };
-      if(bottomLeftNeighbor.hasClass("bomb")){
-            bombCount ++;
-          };
-      if(bottomRightNeighbor.hasClass("bomb")){
-            bombCount ++;
-          };
-      if(leftNeighbor.hasClass("bomb")){
-            bombCount ++;
-          };
-      if(rightNeighbor.hasClass("bomb")){
-            bombCount ++;
-          };
-      $("#row" + i + "tile"+ j).attr("bombCount", bombCount);
-    };
+      //and for every column in that row, giving you a single tile on each loop with row i and column j
+      for (var j = 0; j < this.boardSize; j++) {
+          //start a count of how many bombs surround the tile
+          var bombCount = 0;
+          //find all of its neighbors
+          var topLeftNeighbor = $("#row" + (i-1) + "tile"+ (j-1));
+          var topNeighbor = $("#row" + (i-1) + "tile"+ j);
+          var topRightNeighbor = $("#row" + (i-1) + "tile"+ (j-(-1)))
+          var leftNeighbor = $("#row" + i + "tile"+ (j-1))
+          var rightNeighbor = $("#row" + i + "tile"+ (j-(-1)))
+          var bottomLeftNeighbor = $("#row" + (i-(-1)) + "tile"+ (j-1))
+          var bottomNeighbor = $("#row" + (i-(-1)) + "tile"+ j)
+          var bottomRightNeighbor = $("#row" + (i-(-1)) + "tile"+ (j-(-1)))
+          //make an array of neighbors
+          var allNeighbors = [topLeftNeighbor,topNeighbor,topRightNeighbor,leftNeighbor,rightNeighbor,bottomLeftNeighbor,bottomNeighbor, bottomRightNeighbor]
+          $.each(allNeighbors,function(i,val){
+            if(val.hasClass("bomb")){
+              console.log(val);
+            };
+          })
+
+          if(topNeighbor.hasClass("bomb")){
+                bombCount ++;
+              };
+          if(topLeftNeighbor.hasClass("bomb")){
+                bombCount ++;
+              };
+          if(topRightNeighbor.hasClass("bomb")){
+                bombCount ++;
+              };
+          if(bottomNeighbor.hasClass("bomb")){
+                bombCount ++;
+              };
+          if(bottomLeftNeighbor.hasClass("bomb")){
+                bombCount ++;
+              };
+          if(bottomRightNeighbor.hasClass("bomb")){
+                bombCount ++;
+              };
+          if(leftNeighbor.hasClass("bomb")){
+                bombCount ++;
+              };
+          if(rightNeighbor.hasClass("bomb")){
+                bombCount ++;
+              };
+          $("#row" + i + "tile"+ j).attr("bombCount", bombCount);
+      };
   };
 };
 
@@ -157,12 +174,8 @@ minesweeper.setButtonHandler = function(){
 minesweeper.winGraphic =function(){
   clearInterval(this.startTimer)
   $("#boardContainer").empty();
-  var winText = $("<h1>")
-  winText.css({
-    "text-align":"center",
-  })
+  var winText = $("<h1>").attr({"id":"winText"})
   var winImage1 = $("<img src=http://www.sherv.net/cm/emoticons/war/soldier-with-gun.gif>").attr({
-
   "class":"winImage",
   "id":"winImage1"})
   var winImage2 = $("<img src=http://www.sherv.net/cm/emoticons/war/soldier-with-gun.gif>").addClass("winImage")
@@ -178,17 +191,9 @@ minesweeper.winGraphic =function(){
   $("#boardContainer").css("border","none")
 
   winImage1.css({
-    "top": "20%"
+    "top": "20%",
+    "margin": "1em"
   })
-
-  // winImage2.css({
-  //   "top": "40%"
-  // })
-  //
-  // winImage3.css({
-  //   "top": "70%"
-  // })
-
   minesweeper.walkingSoldier(winImage1);
 
   setTimeout(function(){

@@ -76,4 +76,10 @@ header *{
   padding: 0.5em 2.5em;
   position:absolute;
   right:-10%
-})
+}
+
+#winText{
+    text-align:center;
+    color: darkgrey;
+    text-shadow: 2px 2px 4px black;
+  }
