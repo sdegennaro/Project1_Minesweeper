@@ -333,67 +333,58 @@ minesweeper.setRightClickHandler = function(){
         e.preventDefault();
         //if the tile has already been clicked, do nothing
         if(e.target.classList.contains("num")==true){
-          return
+          return;
         } else{
-          //if it has a flat, remove it
+          //if it has a flag, remove it, and add a bomb to the bomb counter
           if(e.target.classList.contains("flag")){
             e.target.classList.remove("flag");
             minesweeper.bombsLeft ++;
-            $("#bombCounter").text("Bombs: " +minesweeper.bombsLeft)
+            $("#bombCounter").text("Bombs: " +minesweeper.bombsLeft);
           } else{
+            //if it doesn't, add a flag and remove a bomb from the bomb counter
             e.target.classList.add("flag");
             minesweeper.bombsLeft = minesweeper.bombsLeft-1;
-            $("#bombCounter").text("Bombs: " +minesweeper.bombsLeft)
-
-            // e.target.style.content = "url(http://simpleicon.com/wp-content/uploads/flag.png)"
+            $("#bombCounter").text("Bombs: " +minesweeper.bombsLeft);
           };
-        }
-    }
-}
+        };
+    };
+};
 
 
 minesweeper.explodeHandler = function(){
   var board = $("#boardContainer")
   var container =$("#gameContainer")
-  var explosion=$("<img src=http://www.animatedimages.org/data/media/1176/animated-explosion-image-0001.gif>").css({
-    "display":"none"
-
-  })
-  $("body").append(explosion)
 
   scope=this;
+  //when a tile with bomb class is clicked
   $(".bomb").click(function(){
+    //if it's a flag, do nothing
     if($(this).hasClass("flag") == true){
       return;
+      //if it's not a flag change the css
     } else{
       //removes border so tiles explode evenly
       board.css("border", "none");
       //used jquery plugin, explodes into 100 equal pieces
-      board.hide("explode", {pieces:100}, 1800)
+      board.hide("explode", {pieces:100}, 1800);
+      //adds explosion gif as background image
       container.css({
         "background-image":"url(http://www.animatedimages.org/data/media/1176/animated-explosion-image-0001.gif)",
         "background-size":"cover",
         "background-position": "center"
-      })
-    }
-    // explosion.show("fade",1000)
+      });
+    };
+    //run restart after almost 2 secs
     setTimeout(scope.restart,1900);
-  })
-}
-
-
-
-
-
+  });
+};
 
 
 minesweeper.init = function(){
   this.makeBoard();
   this.setRightClickHandler();
   this.setButtonHandler();
-
-
-}
+};
 
 /*
 make the board an array of arrays of rows or arrays of tiles which are objects
@@ -429,4 +420,4 @@ $(function(){
 
   minesweeper.init();
 
-})
+});
