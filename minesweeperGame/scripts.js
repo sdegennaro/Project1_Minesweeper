@@ -120,16 +120,24 @@ minesweeper.makeNeighborsArray = function(i,j){
 };
 
 //increments the time value and placesg it in the timer div
+minesweeper.interval = null
+
 minesweeper.incrementTimer = function(){
     minesweeper.time ++;
     $("#timer").text("Time: "+minesweeper.time);
 };
 
+minesweeper.startTimer = function(){
+  minesweeper.interval = setInterval(scope.incrementTimer,1000);
+}
 //attaches the increment function to the first clickon the game container and performs the function on a 1 sec interval
-minesweeper.startTimerHandler = function(){
+minesweeper.TimerHandler = function(){
     $("#gameContainer").one("click", function(e){
-      setInterval(scope.incrementTimer,1000)
+      this.startTimer();
     });
+};
+minesweeper.stopTimer = function(){
+  clearInterval(minesweeper.interval);
 };
 
 minesweeper.setClickHandler = function(){
@@ -138,7 +146,7 @@ minesweeper.setClickHandler = function(){
   scope.explodeHandler();
   //if it doesn't explode:
   //start the time, game begins;
-  scope.startTimerHandler()
+  scope.startTimer()
   //on click of any element with tile class
   $(".tile").click(function(e){
       // if the clicked tile has a flag on it, do nothing
@@ -183,7 +191,7 @@ minesweeper.checkBomb = function(tileClicked){
 
 minesweeper.checkBombCount = function(tile){
   //since we set bombCount at board creation, get that value
-  var bombCount = parseInt(tile.getAttribute("bombCount"))
+  var bombCount = parseInt(tile.getAttribute("bombCount"));
   //do nothing if there's a flag
   if(tile.classList.contains("flag")){
     return;
@@ -198,113 +206,89 @@ minesweeper.checkBombCount = function(tile){
        tile.classList.add("num");
        tile.innerText = "";
        //if bombCount is 0, get the tile's row and column
-       var row =tile.getAttribute("id")[3]
-       var column = tile.getAttribute("id")[8]
-    
-
-      var allNeighbors = this.makeNeighborsArray(row,column)
-      $.each(allNeighbors,function(i,val){
-          minesweeper.neighborCheck(val);
-      });
-
-
+       var row =tile.getAttribute("id")[3];
+       var column = tile.getAttribute("id")[8];
+       //make array of all neighbors
+       var allNeighbors = this.makeNeighborsArray(row,column);
+       $.each(allNeighbors,function(i,val){
+         //run neighborCheck function on each
+            minesweeper.neighborCheck(val);
+          });
      };
    };
 };
 
 
 minesweeper.neighborCheck = function(tile){
+  //if the tile has length (i.e. exists) and is has not already been checked
   if(tile.length == true && checkedTiles.indexOf(tile[0]) == -1){
-  checkedTiles.push(tile[0]);
-  this.checkBombCount(tile[0])
+  //add it to the checkTiles array
+      checkedTiles.push(tile[0]);
+  //run checkBombCount
+      this.checkBombCount(tile[0]);
   }
 }
 
-minesweeper.topNeighbors = function(i,j){
-    var topLeftNeighbor = $("#row" + (i-1) + "tile"+ (j-1));
-    this.neighborCheck(topLeftNeighbor)
-    var topNeighbor = $("#row" + (i-1) + "tile"+ j);
-    this.neighborCheck(topNeighbor);
-    var topRightNeighbor = $("#row" + (i-1) + "tile"+ (j-(-1)))
-    this.neighborCheck(topRightNeighbor);
-
-}
-
-minesweeper.leftNeighbors = function(i,j){
-  var leftNeighbor = $("#row" + i + "tile"+ (j-1))
-  this.neighborCheck(leftNeighbor);
-}
-minesweeper.rightNeighbors = function(i,j){
-
-  var rightNeighbor = $("#row" + i + "tile"+ (j-(-1)))
-  this.neighborCheck(rightNeighbor);
-};
-
-
-minesweeper.bottomNeighbors = function(i,j){
-  var bottomLeftNeighbor = $("#row" + (i-(-1)) + "tile"+ (j-1))
-  this.neighborCheck(bottomLeftNeighbor);
-  var bottomNeighbor = $("#row" + (i-(-1)) + "tile"+ j)
-  this.neighborCheck(bottomNeighbor);
-  var bottomRightNeighbor = $("#row" + (i-(-1)) + "tile"+ (j-(-1)))
-  this.neighborCheck(bottomRightNeighbor)
-};
-
-
-
-
-
+//run restart if the newGameButton is clicked
 minesweeper.setButtonHandler = function(){
   var scope=this;
   $("#newGameButton").click(function(e){
     scope.restart();
-  })
-}
+  });
+};
+//show images on a win
 minesweeper.winGraphic =function(){
+  //empty the boardContainer of elementChildren
   $("#boardContainer").empty();
-  var winText = $("<h1>").attr({"id":"winText"})
+  //create a heading
+  var winText = $("<h1>").attr({"id":"winText"});
+  //create images
   var winImage1 = $("<img src=http://www.sherv.net/cm/emoticons/war/soldier-with-gun.gif>").attr({
   "class":"winImage",
-  "id":"winImage1"})
-  var winImage2 = $("<img src=http://www.sherv.net/cm/emoticons/war/soldier-with-gun.gif>").addClass("winImage")
-  var winImage3 = $("<img src=http://www.sherv.net/cm/emoticons/war/soldier-with-gun.gif>").addClass("winImage")
-  // other options:
+  "id":"winImage1"});
+  var winImage2 = $("<img src=http://www.sherv.net/cm/emoticons/war/soldier-with-gun.gif>").addClass("winImage");
+  var winImage3 = $("<img src=http://www.sherv.net/cm/emoticons/war/soldier-with-gun.gif>").addClass("winImage");
+  // other image ideas:
   //http://images.zaazu.com/img/Desert-Storm-desert-storm-soldier-war-smiley-emoticon-000131-medium.gif>")
   //    http://www.sherv.net/cm/emoticons/war/smiley-face-soldier.gif>")
 
-  winText.text("YOU WIN!")
-  $("#boardContainer").append(winText)
-  $("#boardContainer").append(winImage1)
-  // , winImage2, winImage3)
-  $("#boardContainer").css("border","none")
+  //add you text to heading and append the text and first image to the container
+  winText.text("YOU WIN!");
+  $("#boardContainer").append(winText);
+  $("#boardContainer").append(winImage1);
+  //remove the boardContainer border so it looks cleaner
+  $("#boardContainer").css("border","none");
 
+  //add some css to the image
   winImage1.css({
     "top": "20%",
     "margin": "1em"
-  })
+  });
+  //make the first image walk
   minesweeper.walkingSoldier(winImage1);
 
+  //on a delay, add the second image and make it walk
   setTimeout(function(){
-
     minesweeper.addSoldier(winImage2);
     minesweeper.walkingSoldier(winImage2);
-  },800)
-
+  },800);
+  //on a delay, add the third image and make it walk
   setTimeout(function(){
     minesweeper.addSoldier(winImage3);
-
     minesweeper.walkingSoldier(winImage3);
-  },1600)
+  },1600);
+};
 
-}
+//takes an image element and adds it to container, changes position in relation to previous child so they don't overlap
 minesweeper.addSoldier = function(image){
   $("#boardContainer").append(image);
   var topPos = image.prev().position().top
   console.log(topPos);
   image.css("top", (topPos+100)+"px");
 }
+
+//takes image element input and decreases its left position so it moves across the screen
 minesweeper.walkingSoldier = function(image){
-  // var currPosition = (image.position().left);
   var distance= (image.parent().width());
   setInterval(function(){
      image.css("left",distance + 'px');
@@ -312,13 +296,13 @@ minesweeper.walkingSoldier = function(image){
       distance = (image.parent().width());
     } else{
       distance = distance - 5;
-    }
+    };
   }, 60);
-}
+};
 
+//resets the container CSS
 minesweeper.restart = function(){
-  var scope = this;
-  clearInterval(scope.startTimerHandler)
+
   $("#boardContainer").empty();
   $("#boardContainer").css({
 
@@ -335,7 +319,9 @@ minesweeper.restart = function(){
   });
   // $("#boardContainer").show();
   checkedTiles = [];
+  minesweeper.time = 0;
   minesweeper.makeBoard();
+  minesweeper.stopTimer();
 
 }
 
