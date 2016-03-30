@@ -93,75 +93,81 @@ minesweeper.setBombCount = function(){
           //find all of its neighbors
           var topLeftNeighbor = $("#row" + (i-1) + "tile"+ (j-1));
           var topNeighbor = $("#row" + (i-1) + "tile"+ j);
-          var topRightNeighbor = $("#row" + (i-1) + "tile"+ (j-(-1)))
-          var leftNeighbor = $("#row" + i + "tile"+ (j-1))
-          var rightNeighbor = $("#row" + i + "tile"+ (j-(-1)))
-          var bottomLeftNeighbor = $("#row" + (i-(-1)) + "tile"+ (j-1))
-          var bottomNeighbor = $("#row" + (i-(-1)) + "tile"+ j)
-          var bottomRightNeighbor = $("#row" + (i-(-1)) + "tile"+ (j-(-1)))
+          var topRightNeighbor = $("#row" + (i-1) + "tile"+ (j-(-1)));
+          var leftNeighbor = $("#row" + i + "tile"+ (j-1));
+          var rightNeighbor = $("#row" + i + "tile"+ (j-(-1)));
+          var bottomLeftNeighbor = $("#row" + (i-(-1)) + "tile"+ (j-1));
+          var bottomNeighbor = $("#row" + (i-(-1)) + "tile"+ j);
+          var bottomRightNeighbor = $("#row" + (i-(-1)) + "tile"+ (j-(-1)));
           //make an array of neighbors
-          var allNeighbors = [topLeftNeighbor,topNeighbor,topRightNeighbor,leftNeighbor,rightNeighbor,bottomLeftNeighbor,bottomNeighbor, bottomRightNeighbor]
+          var allNeighbors = [topLeftNeighbor,topNeighbor,topRightNeighbor,leftNeighbor,rightNeighbor,bottomLeftNeighbor,bottomNeighbor, bottomRightNeighbor];
+          //for each of the neighbors, if they're a bomb add 1 to the bombCount of the current tile
           $.each(allNeighbors,function(i,val){
-            if(val.hasClass("bomb")){
-              console.log(val);
-            };
-          })
-
-          if(topNeighbor.hasClass("bomb")){
-                bombCount ++;
+              if(val.hasClass("bomb")){
+                bombCount++;
               };
-          if(topLeftNeighbor.hasClass("bomb")){
-                bombCount ++;
-              };
-          if(topRightNeighbor.hasClass("bomb")){
-                bombCount ++;
-              };
-          if(bottomNeighbor.hasClass("bomb")){
-                bombCount ++;
-              };
-          if(bottomLeftNeighbor.hasClass("bomb")){
-                bombCount ++;
-              };
-          if(bottomRightNeighbor.hasClass("bomb")){
-                bombCount ++;
-              };
-          if(leftNeighbor.hasClass("bomb")){
-                bombCount ++;
-              };
-          if(rightNeighbor.hasClass("bomb")){
-                bombCount ++;
-              };
+          });
+          //add bombCount as an attribute to current tile
           $("#row" + i + "tile"+ j).attr("bombCount", bombCount);
       };
   };
 };
 
-minesweeper.startTimer = function(){
+//increments the time value and placesg it in the timer div
+minesweeper.incrementTimer = function(){
     minesweeper.time ++;
     $("#timer").text("Time: "+minesweeper.time);
 };
 
+//attaches the increment function to the first clickon the game container and performs the function on a 1 sec interval
+minesweeper.startTimerHandler = function(){
+    $("#gameContainer").one("click", function(e){
+      setInterval(scope.incrementTimer,1000)
+    });
+};
+
 minesweeper.setClickHandler = function(){
   var scope=this;
-  this.explodeHandler();
+  //before any other click event options, set up the explosion on click
+  scope.explodeHandler();
+  //if it doesn't explode:
+  //start the time, game begins;
+  scope.startTimerHandler()
+  //on click of any element with tile class
   $(".tile").click(function(e){
-    setInterval(scope.startTimer,1000)
-    // scope.checkBomb(e.target);
-    if(e.target.classList.contains("flag") == true){
-      return;
-    } else{
-      if(checkedTiles.indexOf(e.target) == -1){
-        if(scope.checkBomb(e.target) != true){
-          checkedTiles.push(e.target);
-          (scope.checkBombCount(e.target)!=true);
-        };
-        if(checkedTiles.length>= ((scope.boardSize*scope.boardSize)-scope.mineCount)){
-          scope.winGraphic();
-          setTimeout(scope.restart,3000);
-        };
+      // if the clicked tile has a flag on it, do nothing
+      if(e.target.classList.contains("flag") == true){
+        return;
+      } else{
+        //if the clicked tile is not in the array of tiles that have already been checked, check it for a bomb
+        if(checkedTiles.indexOf(e.target) == -1){
+          if(scope.checkBomb(e.target) != true){
+            //add the tile
+            checkedTiles.push(e.target);
+            (scope.checkBombCount(e.target)!=true);
+          };
+          if(checkedTiles.length>= ((scope.boardSize*scope.boardSize)-scope.startingBombCount)){
+            scope.winGraphic();
+            setTimeout(scope.restart,3000);
+          };
+        }
       }
-    }
   });
+};
+
+minesweeper.checkBomb = function(tileClicked){
+
+  if(tileClicked.classList.contains("bomb")){
+     console.log("boom!");
+     $(".tile").css({
+      "background-color":"red",
+      "color":"red"
+      });
+     $(".bomb").css({
+       "content": "url(http://simpleicon.com/wp-content/uploads/bomb.png)"
+     });
+     return true;
+  };
 };
 
 
@@ -172,7 +178,6 @@ minesweeper.setButtonHandler = function(){
   })
 }
 minesweeper.winGraphic =function(){
-  clearInterval(this.startTimer)
   $("#boardContainer").empty();
   var winText = $("<h1>").attr({"id":"winText"})
   var winImage1 = $("<img src=http://www.sherv.net/cm/emoticons/war/soldier-with-gun.gif>").attr({
@@ -230,6 +235,7 @@ minesweeper.walkingSoldier = function(image){
 
 minesweeper.restart = function(){
   var scope = this;
+  clearInterval(scope.startTimerHandler)
   $("#boardContainer").empty();
   $("#boardContainer").css({
 
@@ -274,20 +280,7 @@ minesweeper.setRightClickHandler = function(){
 
 
 
-minesweeper.checkBomb = function(tileClicked){
 
-  if(tileClicked.classList.contains("bomb")){
-     console.log("boom!");
-     $(".tile").css({
-      "background-color":"red",
-      "color":"red"
-      });
-     $(".bomb").css({
-       "content": "url(http://simpleicon.com/wp-content/uploads/bomb.png)"
-     })
-     return true;
-  }
-}
 
 minesweeper.explodeHandler = function(){
   var board = $("#boardContainer")
