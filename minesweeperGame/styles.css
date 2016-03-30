@@ -15,6 +15,8 @@ body{
   width: 80%;
   display:table;
   border: 1px solid darkgrey;
+  position: relative;
+  min-height: 15em;
 }
 
 .row{
@@ -67,3 +69,11 @@ header *{
   border: 2px solid black;
   background-color: lightgrey;
 }
+
+.winImage {
+  display:block;
+  width":15%;
+  padding: 0.5em 2.5em;
+  position:absolute;
+  right:-10%
+})

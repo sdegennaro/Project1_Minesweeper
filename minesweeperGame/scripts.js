@@ -161,16 +161,66 @@ minesweeper.winGraphic =function(){
   winText.css({
     "text-align":"center",
   })
-  var winImage = $("<img src=http://www.sherv.net/cm/emoticons/war/smiley-face-soldier.gif>")
-  winImage.css({
-    "display":"block",
-    "width":"50%",
-    "padding": "0em 2.5em"
-  })
-  winText.text("YOU WIN!")
-  winText.append(winImage)
+  var winImage1 = $("<img src=http://www.sherv.net/cm/emoticons/war/soldier-with-gun.gif>").attr({
 
+  "class":"winImage",
+  "id":"winImage1"})
+  var winImage2 = $("<img src=http://www.sherv.net/cm/emoticons/war/soldier-with-gun.gif>").addClass("winImage")
+  var winImage3 = $("<img src=http://www.sherv.net/cm/emoticons/war/soldier-with-gun.gif>").addClass("winImage")
+  // other options:
+  //http://images.zaazu.com/img/Desert-Storm-desert-storm-soldier-war-smiley-emoticon-000131-medium.gif>")
+  //    http://www.sherv.net/cm/emoticons/war/smiley-face-soldier.gif>")
+
+  winText.text("YOU WIN!")
   $("#boardContainer").append(winText)
+  $("#boardContainer").append(winImage1)
+  // , winImage2, winImage3)
+  $("#boardContainer").css("border","none")
+
+  winImage1.css({
+    "top": "20%"
+  })
+
+  // winImage2.css({
+  //   "top": "40%"
+  // })
+  //
+  // winImage3.css({
+  //   "top": "70%"
+  // })
+
+  minesweeper.walkingSoldier(winImage1);
+
+  setTimeout(function(){
+
+    minesweeper.addSoldier(winImage2);
+    minesweeper.walkingSoldier(winImage2);
+  },800)
+
+  setTimeout(function(){
+    minesweeper.addSoldier(winImage3);
+
+    minesweeper.walkingSoldier(winImage3);
+  },1600)
+
+}
+minesweeper.addSoldier = function(image){
+  $("#boardContainer").append(image);
+  var topPos = image.prev().position().top
+  console.log(topPos);
+  image.css("top", (topPos+100)+"px");
+}
+minesweeper.walkingSoldier = function(image){
+  // var currPosition = (image.position().left);
+  var distance= (image.parent().width());
+  setInterval(function(){
+     image.css("left",distance + 'px');
+    if(distance < -100){
+      distance = (image.parent().width());
+    } else{
+      distance = distance - 5;
+    }
+  }, 60);
 }
 
 minesweeper.restart = function(){
@@ -196,7 +246,7 @@ minesweeper.restart = function(){
 }
 
 minesweeper.setRightClickHandler = function(){
-
+  var scope =this;
 
    document.oncontextmenu = function(e){
         e.preventDefault();
@@ -205,8 +255,10 @@ minesweeper.setRightClickHandler = function(){
         } else{
           if(e.target.classList.contains("flag")){
             e.target.classList.remove("flag");
+            scope.bombCount
           } else{
             e.target.classList.add("flag")
+
             // e.target.style.content = "url(http://simpleicon.com/wp-content/uploads/flag.png)"
           };
         }
