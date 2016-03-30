@@ -90,17 +90,8 @@ minesweeper.setBombCount = function(){
       for (var j = 0; j < this.boardSize; j++) {
           //start a count of how many bombs surround the tile
           var bombCount = 0;
-          //find all of its neighbors
-          var topLeftNeighbor = $("#row" + (i-1) + "tile"+ (j-1));
-          var topNeighbor = $("#row" + (i-1) + "tile"+ j);
-          var topRightNeighbor = $("#row" + (i-1) + "tile"+ (j-(-1)));
-          var leftNeighbor = $("#row" + i + "tile"+ (j-1));
-          var rightNeighbor = $("#row" + i + "tile"+ (j-(-1)));
-          var bottomLeftNeighbor = $("#row" + (i-(-1)) + "tile"+ (j-1));
-          var bottomNeighbor = $("#row" + (i-(-1)) + "tile"+ j);
-          var bottomRightNeighbor = $("#row" + (i-(-1)) + "tile"+ (j-(-1)));
-          //make an array of neighbors
-          var allNeighbors = [topLeftNeighbor,topNeighbor,topRightNeighbor,leftNeighbor,rightNeighbor,bottomLeftNeighbor,bottomNeighbor, bottomRightNeighbor];
+          // //make an array of its neighbors
+          var allNeighbors = this.makeNeighborsArray(i,j)
           //for each of the neighbors, if they're a bomb add 1 to the bombCount of the current tile
           $.each(allNeighbors,function(i,val){
               if(val.hasClass("bomb")){
@@ -111,6 +102,21 @@ minesweeper.setBombCount = function(){
           $("#row" + i + "tile"+ j).attr("bombCount", bombCount);
       };
   };
+};
+
+minesweeper.makeNeighborsArray = function(i,j){
+  //receive a tile's row and column and find all of its neighbors
+
+  var topLeftNeighbor = $("#row" + (i-1) + "tile"+ (j-1));
+  var topNeighbor = $("#row" + (i-1) + "tile"+ j);
+  var topRightNeighbor = $("#row" + (i-1) + "tile"+ (j-(-1)));
+  var leftNeighbor = $("#row" + i + "tile"+ (j-1));
+  var rightNeighbor = $("#row" + i + "tile"+ (j-(-1)));
+  var bottomLeftNeighbor = $("#row" + (i-(-1)) + "tile"+ (j-1));
+  var bottomNeighbor = $("#row" + (i-(-1)) + "tile"+ j);
+  var bottomRightNeighbor = $("#row" + (i-(-1)) + "tile"+ (j-(-1)));
+  var neighborsArray = [topLeftNeighbor,topNeighbor,topRightNeighbor,leftNeighbor,rightNeighbor,bottomLeftNeighbor,bottomNeighbor, bottomRightNeighbor];
+  return neighborsArray;
 };
 
 //increments the time value and placesg it in the timer div
@@ -137,26 +143,30 @@ minesweeper.setClickHandler = function(){
   $(".tile").click(function(e){
       // if the clicked tile has a flag on it, do nothing
       if(e.target.classList.contains("flag") == true){
-        return;
+          return;
       } else{
         //if the clicked tile is not in the array of tiles that have already been checked, check it for a bomb
-        if(checkedTiles.indexOf(e.target) == -1){
-          if(scope.checkBomb(e.target) != true){
-            //add the tile
-            checkedTiles.push(e.target);
-            (scope.checkBombCount(e.target)!=true);
+          if(checkedTiles.indexOf(e.target) == -1){
+            //if the tile is not bomb,
+              if(scope.checkBomb(e.target) != true){
+                  //add the tile to the array of checked tiles
+                  checkedTiles.push(e.target);
+                  //call the checkBombCount function
+                  scope.checkBombCount(e.target);
+                  //when you click and add the tile to checkedTiles array, that array's size is equal to the number of tiles on the board minus the number of bombs, you win
+                  if(checkedTiles.length>= ((scope.boardSize*scope.boardSize)-scope.startingBombCount)){
+                    scope.winGraphic();
+                    //restart after 3.5 seconds
+                    setTimeout(scope.restart,3500);
+                  };
+              };
           };
-          if(checkedTiles.length>= ((scope.boardSize*scope.boardSize)-scope.startingBombCount)){
-            scope.winGraphic();
-            setTimeout(scope.restart,3000);
-          };
-        }
-      }
-  });
-};
+      };
+    });
+  };
 
 minesweeper.checkBomb = function(tileClicked){
-
+  //if the tile that's been clicked has a bomb, change all the tiles to red and show bomb icons in the bomb tiles
   if(tileClicked.classList.contains("bomb")){
      console.log("boom!");
      $(".tile").css({
@@ -166,9 +176,82 @@ minesweeper.checkBomb = function(tileClicked){
      $(".bomb").css({
        "content": "url(http://simpleicon.com/wp-content/uploads/bomb.png)"
      });
+     //return true so this can be used for clickHandler
      return true;
   };
 };
+
+minesweeper.checkBombCount = function(tile){
+  //since we set bombCount at board creation, get that value
+  var bombCount = parseInt(tile.getAttribute("bombCount"))
+  //do nothing if there's a flag
+  if(tile.classList.contains("flag")){
+    return;
+  } else{
+    //if there's a value, add the num class and add the bombCount value as text inside the element
+    if(bombCount > 0 ){
+      //the num class is defined in styles.css and makes the tile look clicked
+      tile.classList.add("num");
+      tile.innerText = bombCount;
+      return;
+     } else {
+       tile.classList.add("num");
+       tile.innerText = "";
+       //if bombCount is 0, get the tile's row and column
+       var row =tile.getAttribute("id")[3]
+       var column = tile.getAttribute("id")[8]
+    
+
+      var allNeighbors = this.makeNeighborsArray(row,column)
+      $.each(allNeighbors,function(i,val){
+          minesweeper.neighborCheck(val);
+      });
+
+
+     };
+   };
+};
+
+
+minesweeper.neighborCheck = function(tile){
+  if(tile.length == true && checkedTiles.indexOf(tile[0]) == -1){
+  checkedTiles.push(tile[0]);
+  this.checkBombCount(tile[0])
+  }
+}
+
+minesweeper.topNeighbors = function(i,j){
+    var topLeftNeighbor = $("#row" + (i-1) + "tile"+ (j-1));
+    this.neighborCheck(topLeftNeighbor)
+    var topNeighbor = $("#row" + (i-1) + "tile"+ j);
+    this.neighborCheck(topNeighbor);
+    var topRightNeighbor = $("#row" + (i-1) + "tile"+ (j-(-1)))
+    this.neighborCheck(topRightNeighbor);
+
+}
+
+minesweeper.leftNeighbors = function(i,j){
+  var leftNeighbor = $("#row" + i + "tile"+ (j-1))
+  this.neighborCheck(leftNeighbor);
+}
+minesweeper.rightNeighbors = function(i,j){
+
+  var rightNeighbor = $("#row" + i + "tile"+ (j-(-1)))
+  this.neighborCheck(rightNeighbor);
+};
+
+
+minesweeper.bottomNeighbors = function(i,j){
+  var bottomLeftNeighbor = $("#row" + (i-(-1)) + "tile"+ (j-1))
+  this.neighborCheck(bottomLeftNeighbor);
+  var bottomNeighbor = $("#row" + (i-(-1)) + "tile"+ j)
+  this.neighborCheck(bottomNeighbor);
+  var bottomRightNeighbor = $("#row" + (i-(-1)) + "tile"+ (j-(-1)))
+  this.neighborCheck(bottomRightNeighbor)
+};
+
+
+
 
 
 minesweeper.setButtonHandler = function(){
@@ -277,11 +360,6 @@ minesweeper.setRightClickHandler = function(){
 }
 
 
-
-
-
-
-
 minesweeper.explodeHandler = function(){
   var board = $("#boardContainer")
   var container =$("#gameContainer")
@@ -313,89 +391,9 @@ minesweeper.explodeHandler = function(){
 
 
 
-// $("#hide").click(function(){
-//                $(".target").hide( "explode", {pieces: 16 }, 2000 );
-//             });
-
-minesweeper.checkBombCount = function(tile){
-  var bombCount = parseInt(tile.getAttribute("bombCount"))
-  if(tile.classList.contains("flag")){
-    return;
-  } else{
-    if(bombCount > 0 ){
-      tile.classList.add("num");
-      tile.innerText = bombCount;
-      return true;
-     } else {
-       tile.classList.add("num");
-       tile.innerText = "";
-       var row =tile.getAttribute("id")[3]
-      //  console.log(tile.getAttribute("id").match(/\d/));
-       var column = tile.getAttribute("id")[8]
-       this.topNeighbors(row, column);
-       this.leftNeighbors(row, column);
-       this.rightNeighbors(row, column);
-       this.bottomNeighbors(row, column);
-     };
-   };
-};
-
-
-minesweeper.neighborCheck = function(tile){
-  if(tile.length == true && checkedTiles.indexOf(tile[0]) == -1){
-  checkedTiles.push(tile[0]);
-  this.checkBombCount(tile[0])
-  }
-}
-
-minesweeper.topNeighbors = function(i,j){
-    var topLeftNeighbor = $("#row" + (i-1) + "tile"+ (j-1));
-    this.neighborCheck(topLeftNeighbor)
-    var topNeighbor = $("#row" + (i-1) + "tile"+ j);
-    this.neighborCheck(topNeighbor);
-    var topRightNeighbor = $("#row" + (i-1) + "tile"+ (j-(-1)))
-    this.neighborCheck(topRightNeighbor);
-
-}
-
-minesweeper.leftNeighbors = function(i,j){
-  var leftNeighbor = $("#row" + i + "tile"+ (j-1))
-  this.neighborCheck(leftNeighbor);
-}
-minesweeper.rightNeighbors = function(i,j){
-
-  var rightNeighbor = $("#row" + i + "tile"+ (j-(-1)))
-  this.neighborCheck(rightNeighbor);
-}
-
-// minesweeper.makeGameDesign =function(){
-// //   // $(".tile").css{
-// //   //   "width" : this.tileSize + "em";
-// //   //   "height" : this.tileSize + "em";
-// //   // }
-//   $("#gameContainer").css{
-//     "width" : (this.boardSize*this.tileSize + 4)+ "em"
-//   }
-// }
-
-minesweeper.bottomNeighbors = function(i,j){
-  var bottomLeftNeighbor = $("#row" + (i-(-1)) + "tile"+ (j-1))
-  this.neighborCheck(bottomLeftNeighbor);
-  var bottomNeighbor = $("#row" + (i-(-1)) + "tile"+ j)
-  this.neighborCheck(bottomNeighbor);
-  var bottomRightNeighbor = $("#row" + (i-(-1)) + "tile"+ (j-(-1)))
-  this.neighborCheck(bottomRightNeighbor)
-  // console.log(topLeftNeighbor,topNeighbor,topRightNeighbor, leftNeighbor,rightNeighbor, bottomLeftNeighbor, bottomNeighbor, bottomRightNeighbor)
-}
 
 
 
-// // minesweeper.checkNeighbors = function(tileClicked){
-// //   var clickRow = console.log(tileClicked.getAttribute("id")[3]);
-// //   var clickColumn = console.log(tileClicked.getAttribute("id")[7]);
-// //   var bombCount = 0;
-// //   this.checkBomb($("#row[" + (clickRow-1) + "]tile["+ clickColumn +"]"));
-// };
 
 minesweeper.init = function(){
   this.makeBoard();
